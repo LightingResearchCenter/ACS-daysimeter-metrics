@@ -1,6 +1,5 @@
 function [oneLine,nonCompliantOneLine] = weartimeIntervals(masks,absTime)
 
- nnnnnnnnnnnnnnnn
 %filePath ='C:\Users\runef_000\Documents\GitHub\cdfPractice\A11637\marked_download\A11637_SEP15_191.cdf';
 
     %[absTime,relTime,epoch,light,activity,masks,subjectID,cdfData] = readAndConvertCdf(filePath);
