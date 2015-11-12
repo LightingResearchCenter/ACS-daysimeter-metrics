@@ -39,7 +39,7 @@ startHourLabels = datestr(localDateVec(1:end-1,:),'HH:MM');
 endHourLabels = datestr(localDateVec(2:end,:),'HH:MM');
 spacer = repmat(' - ',[size(startHourLabels,1),1]);
 hourLabels = [startHourLabels,spacer,endHourLabels];
-
+ 
 dateLabels = cellstr(dateLabels);
 hourLabels = cellstr(hourLabels);
 
