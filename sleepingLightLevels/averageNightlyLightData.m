@@ -1,6 +1,6 @@
-function nightlyData  = averageNightlyLightData(absTime,dataArray,masks,varargin)
+function nightlyData  = averageNightlyLightData(absTime,dataArray,masks,lightsOnOffIdx,varargin)
 
-if nargin == 4 % Optional argument provided
+if nargin == 5 % Optional argument provided
     operation = varargin{1}; % Use provided average type
 else
     operation = 'mean';
@@ -17,23 +17,7 @@ startIdx = compDiff == 1;
 % compDiff = 1 = end of noncompliance bouts
 endIdx = compDiff == -1;
 
-nPoints = numel(bedArray);
-
-bedValues = dataArray; 
-bedValues(~bedArray) = []; 
-darkValue = mode(bedValues); 
-
-darkIdx = nan(nPoints,1); 
-
-for iPoints = 1:nPoints
-    if dataArray(iPoints) > darkValue
-        darkIdx(iPoints) = 1; 
-    else
-        darkIdx(iPoints) = 0; 
-    end
-end
-
-darkIdx = logical(darkIdx);
+lightsOnOffIdx = logical(lightsOnOffIdx);
 
 startTime = find(startIdx); 
 endTime = find(endIdx); 
@@ -45,8 +29,8 @@ nightlyData = cell(2,nNights);
 %gets the mean for each night 
 for iNights = 1:nNights
     temp = dataArray(startTime(iNights):endTime(iNights));
-    tempIdx = darkIdx(startTime(iNights):endTime(iNights));
-    temp(tempIdx) = []; 
+    tempIdx = lightsOnOffIdx(startTime(iNights):endTime(iNights));
+    temp(tempIdx) = [];
     startDate = datestr(absTime.localDateNum(startTime(iNights))); 
     endDate = datestr(absTime.localDateNum(endTime(iNights)));
     seperator = ' to ';

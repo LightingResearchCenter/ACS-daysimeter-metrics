@@ -23,6 +23,8 @@ dirLis = dir(topDirPath);
 parentDirIdx = strcmp({dirLis.name}','.') | strcmp({dirLis.name}','..');
 % Remove parent directories
 dirLis(parentDirIdx) = [];
+end
+
 
 
 

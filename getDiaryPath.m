@@ -1,13 +1,11 @@
 %provides list of cdfs with corresponding diaries. 
-function filePaths = getDiaryPath(varargin)
+function [diaryPath,filePath] = getDiaryPath(masterPath)
 
 %pick the directory to operate on
-%selectDir = varargin{1,1};
-%selectDir = uigetdir('C:\','pick');
-selectDir = 'C:\DaysimeterData';
+%masterPath = 'C:\DaysimeterData';
 
 %output directory list and the folder path
-[dirList,folderPath] = getFolderListing(selectDir);
+[dirList,folderPath] = getFolderListing(masterPath);
 
 %removes the folders in question 
 dirList = rmFolder(dirList,'weekly_reports'); 
@@ -26,36 +24,41 @@ best_diary_array = fullfile(pathArray,filesep,'best_diary');
 nDir = numel(marked_dir_array); 
 
 %preallocates for the file paths 
-folderContentsCell = cell(nDir,2);
-filePaths = cell(nDir,2);
+folderContentsDiary = cell(nDir,1);
+folderContentsData = cell(nDir,1); 
+diaryPath = cell(nDir,1);
+filePath = cell(nDir,1);
 
 %goes through each folder and finds a cdf and records the path to the cell
 %array. if the cell is empty it does not write to the cell leaving an empty
 %cell 
 for iDir = 1:nDir
-    
+   
    thisDir = marked_dir_array{iDir};
-   folderContentsCell{iDir,1} = dir([thisDir,filesep,'*.cdf']);
-   if ~isempty(folderContentsCell{iDir,1})
-       fileName = folderContentsCell{iDir,1}.name;
-       filePaths{iDir,1} = fullfile(marked_dir_array{iDir},filesep,fileName);
+   folderContentsData{iDir,1} = dir([thisDir,filesep,'*.cdf']);
+   if ~isempty(folderContentsData{iDir,1})
+       fileName = folderContentsData{iDir,1}.name;
+       filePath{iDir,1} = fullfile(marked_dir_array{iDir},filesep,fileName);
    end
    
    thisDir = best_diary_array{iDir};
-   folderContentsCell{iDir,2} = dir([thisDir,filesep,'*.xlsx']);
-   if ~isempty(folderContentsCell{iDir})
-       fileName = folderContentsCell{iDir,2}.name;
-       filePaths{iDir,2} = fullfile(best_diary_array{iDir},filesep,fileName);
+   
+   folderContentsDiary{iDir,1} = dir([thisDir,filesep,'*.xlsx']);
+   if ~isempty(folderContentsDiary{iDir,1})
+       fileName = folderContentsDiary{iDir,1}.name;
+       diaryPath{iDir,1} = fullfile(best_diary_array{iDir},filesep,fileName);
    end
     
 end
 
 % Find empty cells
-idxEmpty = cellfun(@isempty,filePaths);
+idxEmptyData = cellfun(@isempty,filePath);
+idxEmptyDiary = cellfun(@isempty,diaryPath); 
 %creates empty cells vecto 
-idxEmptyVec = idxEmpty(:,1) | idxEmpty(:,2);
+idxEmptyVec = idxEmptyData(:,1) | idxEmptyDiary(:,1);
 % Remove empty cells
-filePaths(idxEmptyVec,:) = [];
+filePath(idxEmptyVec,:) = [];
+diaryPath(idxEmptyVec,:) = []; 
 
 
 end

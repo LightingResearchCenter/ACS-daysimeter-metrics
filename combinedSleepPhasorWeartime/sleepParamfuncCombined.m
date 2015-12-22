@@ -1,13 +1,41 @@
-function [assumedSleepTime,reportedSleepTime,sleepEfficiency,timesWokeWhileSleeping ] = sleepParamfuncCombined()
+function [] = sleepParamfuncCombined()
+masterPath = '\\root\projects\AmericanCancerSociety\DaysimeterData\';
+[q1FilePaths,q2FilePaths,q3FilePaths,q4FilePaths,...
+    q1DiaryPaths,q2DiaryPaths,q3DiaryPaths,q4DiaryPaths] = quarterFilePaths(masterPath);
 
-%gets the paths for both of the diary and cdfs in two columns 
-filePaths = getDiaryPath(); 
+for iQuarter = 1:4
+    
+    if iQuarter == 1
+        filePath = q1FilePaths; 
+        diaryPath = q1DiaryPaths; 
+        fileQName = 'Q1.xlsx';
+    end
+    
+    if iQuarter == 2
+        filePath = q2FilePaths; 
+        diaryPath = q2DiaryPaths; 
+        fileQName = 'Q2.xlsx';
+    end
+    
+    if iQuarter == 3
+        filePath = q3FilePaths; 
+        diaryPath = q3DiaryPaths; 
+        fileQName = 'Q3.xlsx';
+    end
+    
+    if iQuarter == 4
+        filePath = q4FilePaths; 
+        diaryPath = q4DiaryPaths; 
+        fileQName = 'Q4.xlsx';
+    end
+
+
 %gets the number of files 
-pathSize = size(filePaths); 
+nPath = numel(filePath); 
 %trying to figure out what to preallocate so that the data from the for
 %loop will be saved outside of the for loop.
 maxCount = 7; 
-nSubjects = pathSize(1); 
+nSubjects = nPath; 
 
 heading = {'subjectID ', 'night 1 ', 'night 2 ', 'night 3 ', 'night 4 ', 'night 5 ', 'night 6 ', 'night 7 '};
 cellTemplate = cell(nSubjects+1,maxCount+1);
@@ -59,17 +87,17 @@ param = struct('timeInBed',              {'NaN'},...
                'moveAndFragIndex',       {'NaN'});
 
 
-subjectSleepData = cell(pathSize(1),1);
-subject_ID = cell(pathSize(1),1);
-totalEle = cell(pathSize(1),1);
-for iPath = 1:pathSize
+%subjectSleepData = cell(pathSize(1),1);
+%subject_ID = cell(pathSize(1),1);
+%totalEle = cell(pathSize(1),1);
+for iPath = 1:nPath
     %this opens and converts the cdf
-    [absTime,relTime,epoch,light,activity,masks,subjectID] = readAndConvertCdf(filePaths{iPath,1});
+    [absTime,relTime,epoch,light,activity,masks,subjectID] = readAndConvertCdf(filePath{iPath,1});
     %reads the diary and outputs the arrays and offset 
-    [bedTimeArray,riseTimeArray,offset] = readDiary(filePaths{iPath,2});
+    [bedTimeArray,riseTimeArray,offset] = readDiary(diaryPath{iPath,1});
     %creates the start time and end time array 
     analysisStartTime = bedTimeArray  - 20/(60*24);
-    analysisEndTime   = riseTimeArray + 20/(60*24);
+    analysisEndTime = riseTimeArray + 20/(60*24);
     %calcuates the number of nights in the set 
     nNight = numel(bedTimeArray);
     %preallocate so that the data can be saved outside of the nested for
@@ -99,9 +127,28 @@ for iPath = 1:pathSize
      %subjectSleepData{iPath,1} = dailySleepStruct;
      %totalEle{iPath,1} = numel(dailySleepStruct);
 end
+nowDV = datevec(datestr(now)); 
+year = num2str(nowDV(1));
+month = num2str(nowDV(2)); 
+date = num2str(nowDV(3));
+hour = num2str(nowDV(4)); 
+minute = num2str(nowDV(5)); 
+if numel(minute) <= 1
+    minute = strcat('0',minute); 
+end
 
-xlswrite('sleepMetrics.xlsx',assumedSleepTime,'assumedSleepTime'); 
-xlswrite('sleepMetrics.xlsx',reportedSleepTime,'reportedSleepTime'); 
-xlswrite('sleepMetrics.xlsx',sleepEfficiency,'sleepEfficiency'); 
-xlswrite('sleepMetrics.xlsx',timesWokeWhileSleeping,'timesWokenWhileSleeping'); 
+dateLabel = strcat(year,'-',month,'-',date,'_',hour,minute); 
+fileName = strcat('\\root\projects\AmericanCancerSociety\daysimeterMetrics\sleepMetrics',...
+    dateLabel,'_',fileQName);
+if ~isempty(filePath)
+xlswrite(fileName,assumedSleepTime,'assumedSleepTime');
+xlswrite(fileName,reportedSleepTime,'reportedSleepTime');
+xlswrite(fileName,sleepEfficiency,'sleepEfficiency');
+xlswrite(fileName,timesWokeWhileSleeping,'timesWokenWhileSleeping');
+end
+
 %winopen('sleepmetrics.xlsx')
+end
+
+
+

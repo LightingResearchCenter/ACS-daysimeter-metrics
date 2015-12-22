@@ -1,3 +1,4 @@
+
 function [dateLabels,hourLabels,condData] = condenseData(absTime,dataArray,varargin)
 %CONDENSEDATA Summary of this function goes here
 %   Detailed explanation goes here
