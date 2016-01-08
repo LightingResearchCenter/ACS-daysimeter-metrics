@@ -4,6 +4,13 @@
 close all 
 clear
 clc
+
+[parentDir,~,~] = fileparts(pwd);
+[githubDir,~,~] = fileparts(parentDir);
+circadianDir = fullfile(githubDir,'circadian');
+acsDir = fullfile(githubDir,'ACS');
+addpath(parentDir, circadianDir, acsDir);
+
 %**************************************************************************
 %Create date Label 
 dateLabel = datestr(now,'yyyy-mm-dd_HHMM');
@@ -173,7 +180,7 @@ for iQuarter = 1:4
     percentWornHeading = {'subjectID' 'Percent Compliance'}; 
     percentUnwornHeading = {'subjectID' 'Percent Non-Compliance'}; 
     compliantBoutHeading = {'subjectID'... 
-        'Compliant Bout Interval Start' 'compliantBout Interval End'...
+        'Compliant Bout Interval Start' 'Compliant Bout Interval End'...
         'Compliant Bout Interval Start' 'Compliant Bout Interval End'...
         'Compliant Bout Interval Start' 'Compliant Bout Interval End'...
         'Compliant Bout Interval Start' 'Compliant Bout Interval End'...
