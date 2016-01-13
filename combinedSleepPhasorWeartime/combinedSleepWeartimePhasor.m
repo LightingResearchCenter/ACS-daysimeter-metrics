@@ -68,6 +68,8 @@ for iQuarter = 1:4
     percentUnworn = templateCell;
     compliantBoutTimes = cell(nSubjects,31); 
     nonCompliantBoutTimes = cell(nSubjects,31); 
+    %MEAN WAKING CS
+    meanWakingCS = templateCell; 
     %SLEEP
     maxCount = 7;
     nSubjects = nPath;
@@ -76,6 +78,13 @@ for iQuarter = 1:4
     assumedSleepTime = cellTemplate;
         %assumedSleepTime(2:nSubjects+1,1) = subject_ID(); 
     assumedSleepTime(1,:) = heading;
+    actualSleepPercent = cellTemplate;
+        %reportedSleepTime(2:nSubjects+1,1) = subject_ID(); 
+    actualSleepPercent(1,:) = heading;
+    sleepOnsetLatency = cellTemplate;
+        %reportedSleepTime(2:nSubjects+1,1) = subject_ID(); 
+    sleepOnsetLatency(1,:) = heading;
+       
     reportedSleepTime = cellTemplate;
         %reportedSleepTime(2:nSubjects+1,1) = subject_ID(); 
     reportedSleepTime(1,:) = heading;
@@ -132,6 +141,12 @@ for iQuarter = 1:4
         [wearTime{iPath,2},unWornTime{iPath,2},percentWorn{iPath,2},percentUnworn{iPath,2},oneLine,nonCompliantOneLine] = makeWeartimeTable(absTime,relTime,epoch,light,activity,masks,subjectID,cdfData);
         compliantBoutTimes(iPath,2:numel(oneLine) + 1) = oneLine(1:numel(oneLine));
         nonCompliantBoutTimes(iPath,2:numel(nonCompliantOneLine) + 1) = nonCompliantOneLine(1:numel(nonCompliantOneLine));
+
+        %mean Waking CS 
+        meanWakingCS{iPath,1} = subjectID;
+        dailyCS = light.cs(masks.compliance & masks.observation & ~masks.bed);
+        meanWakingCS{iPath,2} = mean(dailyCS);
+        
 %Sleep
     %reads the diary and outputs the arrays and offset 
     [bedTimeArray,riseTimeArray,offset] = readDiary(diaryPath{iPath,1});
@@ -145,6 +160,8 @@ for iQuarter = 1:4
     dailySleep = cell(nNight,1);
     assumedSleepTime{iPath+1} = subjectID;
     reportedSleepTime{iPath+1} = subjectID;
+    actualSleepPercent{iPath+1} = subjectID;
+    sleepOnsetLatency{iPath+1} = subjectID;
     sleepEfficiency{iPath+1} = subjectID;
     timesWokeWhileSleeping{iPath+1} = subjectID;
         for iNights = 1:nNight
@@ -154,9 +171,11 @@ for iQuarter = 1:4
             analysisStartTime(iNights),analysisEndTime(iNights),bedTimeArray(iNights),...
             riseTimeArray(iNights),'auto');
         if isempty((dailySleep{iNights,1}.sleepEfficiency) | dailySleep{iNights,1}.sleepEfficiency == 0)
-                dailySleep{iNights,1} = param;
+                dailySleep{iNights,1} = param; 
         end
         assumedSleepTime{iPath+1,iNights+1} = [dailySleep{iNights,1}.assumedSleepTime]; 
+        actualSleepPercent{iPath+1,iNights+1} = [dailySleep{iNights,1}.actualSleepPercent];
+        sleepOnsetLatency{iPath+1,iNights + 1} = [dailySleep{iNights,1}.sleepLatency];
         reportedSleepTime{iPath+1,iNights+1} = [dailySleep{iNights,1}.actualSleepTime]; 
         sleepEfficiency{iPath+1,iNights+1} =  [dailySleep{iNights,1}.sleepEfficiency]; 
         timesWokeWhileSleeping{iPath+1,iNights+1} =  [dailySleep{iNights,1}.wakeBouts]; 
@@ -172,7 +191,8 @@ for iQuarter = 1:4
     magnitudeHeading = {'subjec ID' 'Phasor Magnitude'};
     masterPhasorAngleTable = vertcat(angleHeading,masterPhasorAngleTable); 
     masterPhasorMagnitudeTable = vertcat(magnitudeHeading,masterPhasorMagnitudeTable); 
-    
+    %MEAN DAILY CS
+    meanWakingCSHeading = {'subjectID' 'Mean Waking CS'}; 
     %WEARTIME
     %create the headings for the columns
     wearTimeHeading = {'subjectID' 'Compliance Duration (minutes)'}; 
@@ -224,6 +244,7 @@ for iQuarter = 1:4
     nonCompliantBoutTimes = vertcat(nonCompliantBoutHeading,nonCompliantBoutTimes);
     compliantBoutTimesCropped = compliantBoutTimes(:,emptyCNightsIdx); 
     nonCompliantBoutTimesCropped = nonCompliantBoutTimes(:,emptyNcNightsIdx); 
+    meanWakingCS = vertcat(meanWakingCSHeading,meanWakingCS); 
 %**************************************************************************
     %XLSWRITES
     if ~isempty(filePath)
@@ -239,6 +260,9 @@ for iQuarter = 1:4
         xlswrite(fileName, nonCompliantBoutTimesCropped,'Non-Compliant Bout Bounds');
         %SLEEP 
         xlswrite(fileName,assumedSleepTime,'assumedSleepTime');
+        xlswrite(fileName,actualSleepPercent,'actualSleepPercent');
+        xlswrite(fileName,sleepOnsetLatency,'sleepOnsetLatency');
+        xlswrite(fileName,meanWakingCS,'meanWakingCS');
         xlswrite(fileName,reportedSleepTime,'reportedSleepTime');
         xlswrite(fileName,sleepEfficiency,'sleepEfficiency');
         xlswrite(fileName,timesWokeWhileSleeping,'timesWokenWhileSleeping');
