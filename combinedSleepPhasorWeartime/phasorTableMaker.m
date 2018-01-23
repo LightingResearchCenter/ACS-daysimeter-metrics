@@ -8,6 +8,10 @@ phazor = phasor.prep(absTime,epoch,light,activity,masks);
 phasor_angle_hours = phazor.angle.hours;
 phasor_magnitude = phazor.magnitude;
 
+% if strcmpi(subjectID,'A18290')
+%     display('A18290');
+% end
+
 
 end
 
